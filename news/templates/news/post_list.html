@@ -1,0 +1,15 @@
+{% extends "default.html" %}
+
+{% block content %}
+<h1>Список новостей</h1>
+<ul>
+    {% for post in news_list %}
+        <li>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.text|truncatewords:20 }}</p>
+            <p>Дата публикации: {{ post.time_created|date:"d.m.Y" }}</p>
+            <a href="{% url 'news_detail' post.id %}" class="btn btn-primary">Читать далее</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
