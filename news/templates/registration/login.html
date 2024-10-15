@@ -1,0 +1,40 @@
+{% extends "default.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<style>
+    .error-message {
+        color: red;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center">Вход в систему</h2>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <div class="form-group">
+            <label for="username">Логин</label>
+            <input type="text" name="username" class="form-control" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" name="password" class="form-control" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block mt-2">Войти</button>
+    </form>
+    <div class="text-center mt-3">
+        <a href="{% url 'register' %}">Зарегистрироваться</a>
+    </div>
+</div>
+{% endblock %}
