@@ -12,5 +12,6 @@ urlpatterns = [
     path('news/<int:pk>/delete/', NewsDeleteView.as_view(), name='news_delete'),
     path('articles/create/', ArticleCreateView.as_view(), name='article_create'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('register/', register, name='register')
+    path('register/', register, name='register'),
+    path('accounts/', include('allauth.urls')),
 ]

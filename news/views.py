@@ -9,6 +9,7 @@ from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 class NewsListView(ListView):
     model = Post
@@ -41,21 +42,23 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'content', 'categories']
 
-class NewsCreateView(LoginRequiredMixin, CreateView):
+class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     template_name = 'news/news_form.html'
     form_class = PostForm
     success_url = '/news/'
+    permission_required = ('news.add_post',)
 
     def form_valid(self, form):
         form.instance.author = self.request.user.author
         return super().form_valid(form)
 
-class NewsUpdateView(UpdateView):
+class NewsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Post
     template_name = 'news/news_form.html'
     form_class = PostForm
     success_url = '/news/'
+    permission_required = ('news.change_post',)
 
 class ArticleCreateView(CreateView):
     model = Post
@@ -73,4 +76,6 @@ def register(request):
         form = RegistrationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+
 
