@@ -1,0 +1,8 @@
+{% extends "default.html" %}
+
+{% block content %}
+<h1>{{ object.title }}</h1>
+<p>{{ object.content }}</p>
+<p>{{ object.date_created|date:"d.m.Y" }}</p>
+
+{% endblock %}

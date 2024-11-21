@@ -1,0 +1,30 @@
+{% extends "default.html" %}
+
+{% block title %}Подписки{% endblock %}
+
+{% block content %}
+<h1>Подписки на рассылки</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="category" class="form-label">Выберите категорию для подписки:</label>
+        <select name="category" id="category" class="form-select" required>
+            <option value="" disabled selected>Выберите категорию</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Подписаться</button>
+</form>
+
+<h2 class="mt-4">Ваши подписки:</h2>
+<ul>
+    {% for subscription in subscriptions %}
+        <li>{{ subscription.category.name }} - <a href="{% url 'unsubscribe' subscription.id %}">Отписаться</a></li>
+    {% empty %}
+        <li>У вас нет подписок.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

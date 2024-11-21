@@ -1,0 +1,75 @@
+{% extends "default.html" %}
+{% load custom_tags %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<head>
+    <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
+</head>
+
+<style>
+    .error-message {
+        color: red;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center">Вход в систему</h2>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <div class="form-group">
+            <label for="username">Логин</label>
+            <input type="text" name="username" class="form-control" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" name="password" class="form-control" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block mt-2">Войти</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'register' %}">Зарегистрироваться</a>
+    </div>
+
+    <div class="text-center mt-4">
+        <h4>Войти через социальные сети</h4>
+       <div id="buttonContainerId"></div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            window.YaAuthSuggest.init(
+              {
+                client_id: "7d430ae695184c1aaca1629f7c104f14",
+                response_type: "token",
+                redirect_uri: "http://127.0.0.1:8000/accounts/yandex/login/callback/"
+              },
+              "http://127.0.0.1",
+              {
+                view: "button",
+                parentId: "buttonContainerId",
+                buttonSize: 'm',
+                buttonView: 'main',
+                buttonTheme: 'light',
+                buttonBorderRadius: "22",
+                buttonIcon: 'ya',
+              }
+            )
+            .then(({handler}) => handler())
+            .then(data => console.log('Сообщение с токеном', data))
+            .catch(error => console.log('Обработка ошибки', error));
+          });
+        </script>
+    </div>
+</div>
+{% endblock %}
