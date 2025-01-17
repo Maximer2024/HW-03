@@ -15,6 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -25,6 +26,7 @@ SECRET_KEY = 'django-insecure-w1=o(xt-ddxtk!$e$l4nl3p6h#%(0g6lj6+^e#vljxktiy7hru
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 
 # Application definition
 
@@ -83,6 +85,7 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -92,6 +95,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -110,6 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -148,13 +153,16 @@ LOGGING = {
         'console': {
             'format': '%(asctime)s [%(levelname)s] %(message)s',
         },
-        'console_warning': {
+        'console_with_path': {
             'format': '%(asctime)s [%(levelname)s] %(pathname)s: %(message)s',
         },
         'file_general': {
             'format': '%(asctime)s [%(levelname)s] %(module)s: %(message)s',
         },
         'file_error': {
+            'format': '%(asctime)s [%(levelname)s] %(pathname)s: %(message)s',
+        },
+        'email': {
             'format': '%(asctime)s [%(levelname)s] %(pathname)s: %(message)s',
         },
         'security': {
@@ -176,12 +184,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console',
         },
-        'console_warning': {
-            'level': 'WARNING',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'console_warning',
-        },
         'file_general': {
             'level': 'INFO',
             'filters': ['require_debug_false'],
@@ -199,6 +201,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'email',
         },
         'security_file': {
             'level': 'INFO',
@@ -214,22 +217,22 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['console_warning', 'file_error', 'mail_admins'],
+            'handlers': ['console', 'file_error', 'mail_admins'],
             'level': 'WARNING',
             'propagate': False,
         },
         'django.server': {
-            'handlers': ['console_warning', 'file_error', 'mail_admins'],
+            'handlers': ['console', 'file_error', 'mail_admins'],
             'level': 'WARNING',
             'propagate': False,
         },
         'django.template': {
-            'handlers': ['console_warning', 'file_error'],
+            'handlers': ['file_error'],
             'level': 'WARNING',
             'propagate': False,
         },
         'django.db.backends': {
-            'handlers': ['console_warning', 'file_error'],
+            'handlers': ['file_error'],
             'level': 'WARNING',
             'propagate': False,
         },
