@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.core.mail import send_mail
+from django.utils.translation import gettext_lazy as _
+from modeltranslation.translator import register, TranslationOptions
+from modeltranslation.fields import TranslationField
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

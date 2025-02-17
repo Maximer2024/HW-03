@@ -1,35 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     {% load censor_filters %}
     {% load static %}
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}News Portal{% endblock %}</title>
+    <title>{% block title %}{% trans "News Portal" %}{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">News Portal</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="/news/">{% trans "News Portal" %}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/news/">Все новости</a>
+                        <a class="nav-link" href="/news/">{% trans "All News" %}</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
                     {% if user.is_authenticated %}
-                        <span class="me-3">Здравствуйте, {{ user.username }}!</span>
+                        <span class="me-3 text-dark">{% trans "Hello" %}, {{ user.username }}!</span>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Вход</a>
-                        <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">{% trans "Login" %}</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary">{% trans "Register" %}</a>
                     {% endif %}
+
+                    <form action="{% url 'set_language' %}" method="post" class="ms-3">
+                        {% csrf_token %}
+                        <select name="language" class="form-select form-select-sm" onchange="this.form.submit()">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_available_languages as LANGUAGES %}
+                            {% for lang_code, lang_name in LANGUAGES %}
+                                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                                    {{ lang_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
                 </div>
             </div>
         </div>
