@@ -1,0 +1,163 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">{% trans "Админ-панель" %}</h2>
+
+    <div class="text-center mb-4">
+        <a href="{% url 'news_create' %}" class="btn btn-success">{% trans "Создать новость" %}</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Заголовок" %}</th>
+                    <th>{% trans "Дата создания" %}</th>
+                    <th>{% trans "Действия" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td>{{ post.id }}</td>
+                    <td>
+                        <a href="{% url 'news_detail' post.id %}" class="text-decoration-none">
+                            📎 {{ post.title }}
+                        </a>
+                    </td>
+                    <td>{{ post.time_created }}</td>
+                    <td>
+                        <a href="{% url 'news_edit' post.id %}" class="btn btn-warning btn-sm">{% trans "Редактировать" %}</a>
+                        <button class="btn btn-danger btn-sm delete-btn" data-post-id="{{ post.id }}">
+                            {% trans "Удалить" %}
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления -->
+<div id="deleteModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Подтверждение удаления" %}</h5>
+                <button type="button" class="btn-close macos-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Вы уверены, что хотите удалить эту статью?" %}</p>
+                <input type="password" id="deletePassword" class="form-control" placeholder="Введите пароль">
+                <div class="text-danger mt-2" id="deleteError"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {% trans "Отмена" %}
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>{% trans "Удалить" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedPostId = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                selectedPostId = this.getAttribute("data-post-id");
+                document.getElementById("deleteError").innerText = "";
+                document.getElementById("deletePassword").value = "";
+                document.getElementById("confirmDeleteBtn").disabled = true;
+                new bootstrap.Modal(document.getElementById("deleteModal")).show();
+            });
+        });
+
+        document.getElementById("deletePassword").addEventListener("input", function () {
+            document.getElementById("confirmDeleteBtn").disabled = this.value.trim() === "";
+        });
+
+        document.getElementById("confirmDeleteBtn").addEventListener("click", function () {
+            const password = document.getElementById("deletePassword").value;
+            if (!selectedPostId) return;
+
+            fetch(`/news/${selectedPostId}/delete/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                credentials: "same-origin",
+                body: `password=${encodeURIComponent(password)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    document.getElementById("deleteError").innerText = data.error;
+                }
+            })
+            .catch(error => console.error("Ошибка:", error));
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+<style>
+    .btn-close.macos-close {
+        width: 14px;
+        height: 14px;
+        background: none;
+        border: none;
+        opacity: 0.7;
+        transition: opacity 0.3s ease-in-out;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+
+    .btn-close.macos-close:hover {
+        opacity: 1;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+{% endblock %}
