@@ -4,12 +4,7 @@ from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.utils.translation import gettext_lazy as _
-from modeltranslation.translator import register, TranslationOptions
-from modeltranslation.fields import TranslationField
 
-class Post(models.Model):
-    title = models.CharField(max_length=200)
-    content = models.TextField()
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -22,11 +17,16 @@ class Author(models.Model):
         self.rating = (post_ratings * 3) + comment_ratings + post_comment_ratings
         self.save()
 
+    def __str__(self):
+        return self.user.username
+
+
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
     def __str__(self):
         return self.name
+
 
 class Subscriber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -35,20 +35,25 @@ class Subscriber(models.Model):
     def __str__(self):
         return f"{self.user.username} подписан на {self.category.name}"
 
+
 class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     NEWS = 'NW'
     ARTICLE = 'AR'
     POST_TYPE = [
-        (NEWS, 'Новость'),
-        (ARTICLE, 'Статья'),
+        (NEWS, _('Новость')),
+        (ARTICLE, _('Статья')),
     ]
     post_type = models.CharField(max_length=2, choices=POST_TYPE, default=ARTICLE)
     time_created = models.DateTimeField(auto_now_add=True)
     categories = models.ManyToManyField(Category, through='PostCategory')
+
     title = models.CharField(max_length=128)
     content = models.TextField()
     rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
 
     def like(self):
         self.rating += 1
@@ -62,11 +67,14 @@ class Post(models.Model):
         return f'{self.content[:124]}...' if len(self.content) > 124 else self.content
 
     def get_absolute_url(self):
+        from django.urls import reverse
         return reverse('post_detail', args=[str(self.id)])
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -74,6 +82,9 @@ class Comment(models.Model):
     content = models.TextField()
     time_created = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Комментарий от {self.user.username} к {self.post.title}"
 
     def like(self):
         self.rating += 1

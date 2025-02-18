@@ -14,34 +14,46 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/news/">{% trans "News Portal" %}</a>
+            <a class="navbar-brand" href="{% url 'news_list' %}">{% trans "News Portal" %}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/news/">{% trans "All News" %}</a>
+                        <a class="nav-link" href="{% url 'news_list' %}">{% trans "Все новости" %}</a>
                     </li>
                 </ul>
+
                 <div class="d-flex align-items-center">
                     {% if user.is_authenticated %}
-                        <span class="me-3 text-dark">{% trans "Hello" %}, {{ user.username }}!</span>
+                        <span class="me-3 text-dark">{% trans "Привет" %}, {{ user.username }}!</span>
+
+                        {% if user.is_superuser %}
+                            <a href="{% url 'admin_panel' %}" class="btn btn-warning me-2">{% trans "Админ-панель" %}</a>
+                        {% endif %}
+
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">{% trans "Выйти" %}</button>
+                        </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">{% trans "Login" %}</a>
-                        <a href="{% url 'register' %}" class="btn btn-primary">{% trans "Register" %}</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">{% trans "Войти" %}</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary">{% trans "Регистрация" %}</a>
                     {% endif %}
 
                     <form action="{% url 'set_language' %}" method="post" class="ms-3">
                         {% csrf_token %}
-                        <select name="language" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <select name="language" onchange="this.form.submit()" class="form-select">
                             {% get_current_language as LANGUAGE_CODE %}
-                            {% get_available_languages as LANGUAGES %}
-                            {% for lang_code, lang_name in LANGUAGES %}
-                                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
-                                    {{ lang_name }}
-                                </option>
-                            {% endfor %}
+                            {% if LANGUAGE_CODE == "ru" %}
+                                <option value="ru" selected>Русский</option>
+                                <option value="en">Английский (EN)</option>
+                            {% else %}
+                                <option value="ru">Russian (RU)</option>
+                                <option value="en" selected>English</option>
+                            {% endif %}
                         </select>
                     </form>
                 </div>

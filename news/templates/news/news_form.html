@@ -1,14 +1,49 @@
 {% extends "default.html" %}
+{% load i18n %}
+{% load widget_tweaks %}
 
 {% block content %}
-  <h2>{% if object %}Редактировать новость{% else %}Создать новость{% endif %}</h2>
-  
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    
-    <button type="submit" class="btn btn-primary">
-      {% if object %}Обновить{% else %}Создать{% endif %}
-    </button>
-  </form>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">
+        {% if object %}
+            {% trans "Редактирование статьи" %}
+        {% else %}
+            {% trans "Создание новости" %}
+        {% endif %}
+    </h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="post" class="p-4 border rounded shadow-sm bg-light">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{% trans "Заголовок" %}</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">{% trans "Содержимое" %}</label>
+                    {{ form.content|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.categories.id_for_label }}" class="form-label">{% trans "Категории" %}</label>
+                    {{ form.categories|add_class:"form-select" }}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">
+                        {% if object %}
+                            {% trans "Сохранить изменения" %}
+                        {% else %}
+                            {% trans "Создать" %}
+                        {% endif %}
+                    </button>
+                    <a href="{% url 'news_list' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

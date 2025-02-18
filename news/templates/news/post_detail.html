@@ -2,19 +2,31 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h1 class="card-title text-center">{{ object.title }}</h1>
-            <hr>
-            <p class="card-text">{{ object.content }}</p>
-            <p class="text-muted text-end">{% trans "Published on" %}: {{ object.date_created|date:"d.m.Y" }}</p>
-        </div>
+    <div class="container mt-4">
+        <h1 class="mb-3">{{ object.title }}</h1>
+        <p class="lead">{{ object.content }}</p>
+
+        <a href="{% url 'news_list' %}" class="btn btn-secondary mt-3">{% trans "Назад к новостям" %}</a>
+
+        {% if user.is_authenticated and user.is_superuser %}
+            <a href="{% url 'news_edit' object.id %}" class="btn btn-warning mt-3">{% trans "Редактировать" %}</a>
+
+            <button class="btn btn-danger mt-3" onclick="confirmDelete();">{% trans "Удалить" %}</button>
+
+            <form id="deleteForm" action="{% url 'delete_news' object.id %}" method="post" class="d-none">
+                {% csrf_token %}
+                <input type="password" name="password" placeholder="{% trans 'Введите пароль' %}" required>
+                <button type="submit">{% trans 'Подтвердить удаление' %}</button>
+            </form>
+
+            <script>
+                function confirmDelete() {
+                    let confirmBox = confirm("{% trans 'Вы уверены, что хотите удалить эту статью?' %}");
+                    if (confirmBox) {
+                        document.getElementById("deleteForm").classList.remove("d-none");
+                    }
+                }
+            </script>
+        {% endif %}
     </div>
-    <div class="mt-3">
-        <a href="{% url 'news_list' %}" class="btn btn-primary">
-            ← {% trans "Back to news list" %}
-        </a>
-    </div>
-</div>
 {% endblock %}
